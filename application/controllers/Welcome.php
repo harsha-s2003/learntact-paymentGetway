@@ -170,6 +170,7 @@ public function order_pay()
 
 public function dashboard()
 {
+	
 	if(!empty($_SESSION['adccepay']))
 	{
 		$getData = $this->Common_model->GetData('student_reg','',"id='".$_SESSION['adccepay']->id."'",'','','','1');
@@ -193,8 +194,8 @@ public function dashboard()
                     "ReturnUrl" => base_url("paymentdemo/confirm"),
                     "ClientCode" => "007",
                     "TransactionId" => $transactionId,
-                    "CustomerEmailId" => "atomdev@gmail.com",
-                    "CustomerMobile" => "8888888888",
+                    "CustomerEmailId" => "sagar.gopale@atomtech.in",
+                    "CustomerMobile" => "8976286911",
                     "udf1" => "Atom Dev", // optional udf1
                     "udf2" => "Andheri Mumbai", // optional udf2
                     "udf3" => "udf3", // optional udf3
@@ -206,7 +207,7 @@ public function dashboard()
                     "ResponseDecryptionKey" => "75AEF0FA1B94B3C10D4F5B268F757F11",
             ));
         
-          // Merge all data into one array
+        // Merge all data into one array
         $data = array(
             'studentfeeD'   => $getData,
             'atomTokenId'   => $this->atompayrequest->payNow(),
@@ -220,9 +221,9 @@ public function dashboard()
         $this->load->view('footer');
     }
 	}
-	else {
-		redirect(site_url('login'));
-	}
+	// else {
+	// 	redirect(site_url('dashboard'));
+	// }
 		
 }
 public function resstatus()

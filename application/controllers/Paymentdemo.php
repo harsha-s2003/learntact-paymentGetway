@@ -20,8 +20,8 @@ class Welcome extends CI_Controller {
                     "ReturnUrl" => base_url("paymentdemo/confirm"),
                     "ClientCode" => "007",
                     "TransactionId" => $transactionId,
-                    "CustomerEmailId" => "atomdev@gmail.com",
-                    "CustomerMobile" => "8888888888",
+                    "CustomerEmailId" => "sagar.gopale@atomtech.in",
+                    "CustomerMobile" => "8976286911",
                     "udf1" => "Atom Dev", // optional udf1
                     "udf2" => "Andheri Mumbai", // optional udf2
                     "udf3" => "udf3", // optional udf3
