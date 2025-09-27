@@ -1,0 +1,2 @@
+Request:[26-09-2025 14:17:41]["SecureHash||4c6af5b3f8ec09f00302ac393dd5fbb373f98e78a9b9266b0a265ef36f332052","Amount||100","BankId||24520","Currency||356","MCC||8641","MerchantId||100000000005859","OrderInfo||","PassCode||ABCD1234","Pay_Now||","Phone||9172271207","ReturnURL||http:\/\/localhost\/epay\/response","TerminalId||EG000488","TxnRefNo||ADCC64168","TxnType||Pay","Version||1","program||JUNIOR-COLLEGE"]
+

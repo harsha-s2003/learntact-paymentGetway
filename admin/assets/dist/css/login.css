@@ -1,0 +1,6 @@
+.red{color: red;}
+.background{background-image: url('../img/transparent-purple-gradient.png');height: 500px;
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover;}
+  .m-top-20{margin-top:20px;}

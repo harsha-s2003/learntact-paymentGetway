@@ -1,0 +1,30 @@
+/*
+ * PHP Kit for Icici Merchant Solutions
+ * Version: 1.0.1
+ * This is validation file
+ */
+* { font-family:sans-serif; }
+h1       { font-size:20px; font-weight:600; margin-bottom:5px; color:#08185A;}
+h2       { font-size:12px; font-weight:100; margin-top:5px; color:#08185A;}
+h2.co    { font-size:24px; font-weight:100; margin-top:5px; margin-bottom:5px; color:#08185A}
+h3       { font-size:16px; font-weight:100; margin-top:5px; margin-bottom:5px; color:#08185A}
+h3.co    { font-size:16px; font-weight:100; margin-top:5px; margin-bottom:5px; color:#FFFFFF}
+body     { font-size:12px; background-color:#FFFFFF; color:#08185A}
+th       { font-size:8px; font-weight:bold; background-color:#E1E1E1; padding-top:0.5em; padding-bottom:0.5em;  color:#08185A}
+.shade   { height:30px; background-color:#E1E1E1 }
+.title   { height:30px; background-color:#C1C1C1 }
+td       { padding-bottom: 5px;font-size:12px;  color:#08185A }
+p        { font-size:12px; color:#FFFFFF }
+input    { font-size: 12px;
+    color: #08185A;
+    line-height: 20px;
+    width: 100%;
+    max-width: 700px; }
+tr       { height: 52px; }
+td 		 { max-width: 372px; vertical-align: baseline;}
+input[type="submit"] {
+    padding: 5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+label.error { display: block; padding-top: 5px; color: #ff0000;}
