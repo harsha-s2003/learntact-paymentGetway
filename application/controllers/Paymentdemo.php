@@ -8,7 +8,8 @@ class Welcome extends CI_Controller {
         
           $transactionId =  sprintf("%06d", mt_rand(1, 999999));
           $payUrl = "https://caller.atomtech.in/ots/aipay/auth";
-          $amount = "50.00"; 
+          $amount = $this->input->post('amount') ?? "50.00";  // dynamic amount from user input
+ 
          
           $this->load->library("AtompayRequest",array(
                     "Login" => "446442",
@@ -45,26 +46,43 @@ class Welcome extends CI_Controller {
        $this->load->view('dashboard', $data);
     }
     
-    // to get response pass below as return URL in your view
-    public function response()
-    {
-        $this->load->library("AtompayResponse",array(
-                "data" => $_POST['encData'],
-                "merchId" => $_POST['merchId'],
-                "ResponseDecryptionKey" => "75AEF0FA1B94B3C10D4F5B268F757F11",
-         ));
-//        echo "<pre>";
-//        print_r($this->atompayresponse->decryptResponseIntoArray()['responseDetails']);
-//        print_r($this->atompayresponse->decryptResponseIntoArray()['merchDetails']);
-//        print_r($this->atompayresponse->decryptResponseIntoArray()['payModeSpecificData']);
-//        exit;
-       // to get data from above arrays use below code
-        
-        echo "Transaction Result: ".$this->atompayresponse->decryptResponseIntoArray()['responseDetails']['statusCode']."<br><br>";
-        echo "Merchant Transaction Id: ".$this->atompayresponse->decryptResponseIntoArray()['merchDetails']['merchTxnId']."<br><br>";
-        echo "Transaction Date: ".$this->atompayresponse->decryptResponseIntoArray()['merchDetails']['merchTxnDate']."<br><br>";
-        echo "Bank Transaction Date: ".$this->atompayresponse->decryptResponseIntoArray()['payModeSpecificData']['bankDetails']['bankTxnId']."<br><br>";
-        
+   public function response()
+{
+    $this->load->library("AtompayResponse", array(
+        "data" => $_POST['encData'],
+        "merchId" => $_POST['merchId'],
+        "ResponseDecryptionKey" => "75AEF0FA1B94B3C10D4F5B268F757F11",
+    ));
+
+    $responseArr = $this->atompayresponse->decryptResponseIntoArray();
+
+    $statusCode     = $responseArr['responseDetails']['statusCode'];
+    $transactionId  = $responseArr['merchDetails']['merchTxnId'];   // Atom ka txn id
+    $transactionDate= $responseArr['merchDetails']['merchTxnDate'];
+    $bankTxnId      = $responseArr['payModeSpecificData']['bankDetails']['bankTxnId'];
+
+    // DB save/update
+    $data_Arr = array(
+        'bank_trans_id'  => $bankTxnId,
+        'payment_status' => ($statusCode == 'OTS0000') ? 'Success' : 'Failed',
+        'payment_date'   => $transactionDate,
+        'modified'       => date("Y-m-d H:i:s"),
+    );
+
+   
+    $this->Common_model->SaveData(
+        'student_fee_details',
+        $data_Arr,
+        "transation_id='".$transactionId."'"   // fix spelling
+    );
+
+    if ($statusCode == 'OTS0000') {
+        redirect('payment-history');
+    } else {
+        $this->session->set_flashdata('error', 'Payment failed, please try again.');
+        redirect('dashboard');
     }
+}
+
     
 }
