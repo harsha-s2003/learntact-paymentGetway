@@ -54,9 +54,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <tr>
                                     <td>Fees</td>
                                     <td>
-                                        <p>Transaction Id: <b><?= $transactionId; ?></b></p>
-                                        <p>Atom Token Id: <b><?= $atomTokenId ? $atomTokenId : "No Token" ?></b></p>
-                                        <p>Pay Rs. <b> <?= $amount; ?></b></p>
+                                        <!-- Hidden fields -->
+                                        <input type="" name="transactionId" value="<?= $transactionId; ?>">
+                                        <input type="" name="atomTokenId"
+                                            value="<?= $atomTokenId ? $atomTokenId : ''; ?>">
+
+                                        <!-- Amount input box -->
+                                        <p>Pay Rs.
+                                            <input type="number" name="amount" id="amount" class="form-control"
+                                                placeholder="Enter Amount" required>
+                                        </p>
 
                                         <a class="btn btn-success" href="javascript:openPay()" role="button">Pay Now</a>
                                     </td>
@@ -80,6 +87,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     <script>
     function openPay() {
+        let amount = document.getElementById("amount").value;
+
+        if (amount === "" || amount <= 0) {
+            alert("Please enter a valid amount before proceeding.");
+            return false;
+        }
         const options = {
             "atomTokenId": "<?= $atomTokenId ?>",
             "merchId": "446442",

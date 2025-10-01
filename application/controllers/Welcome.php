@@ -145,11 +145,16 @@ class Welcome extends CI_Controller {
 				'1'
 			);
 
+			
+
 			$transactionId = sprintf("%06d", mt_rand(1, 999999));
 			$payUrl = "https://caller.atomtech.in/ots/aipay/auth";
+            $amount = $this->input->post('amount');
+			$amount = $_POST['amount'] ?? null;
 
-			// 👇 yaha se aap input amount bhi le sakte ho
-			$amount = !empty($this->input->post('amount')) ? $this->input->post('amount') : "50.00";
+			if (empty($amount) || $amount >= 100) {
+				$amount = 100; // default amount
+			}
 
 			$this->load->library("AtompayRequest", array(
 				"Login" => "446442",
@@ -170,19 +175,18 @@ class Welcome extends CI_Controller {
 			));
 
 			$atomTokenId = $this->atompayrequest->payNow();
-
-			// 👇 Pehle record create karo with Pending
-			$insertData = array(
-				'student_id'     => $getData->id,
-				'program'        => $getData->program,
-				'fee_amt'        => $amount,
-				'mobile'         => $getData->mobile,
-				'transation_id'  => $transactionId, // spelling same rakho
-				'payment_status' => 'Pending',
-				'created'        => date("Y-m-d H:i:s"),
-				'modified'       => date("Y-m-d H:i:s")
-			);
-			$this->Common_model->SaveData('student_fee_details', $insertData);
+            $insertData = array(
+            'student_id'     => $getData->id,
+            'program'        => $getData->program,
+            'fee_amt'        => $amount,
+            'mobile'         => $getData->mobile,
+            'transation_id'  => $transactionId, // spelling same rakho
+            'payment_status' => 'Pending',
+            'created'        => date("Y-m-d H:i:s"),
+            'modified'       => date("Y-m-d H:i:s")
+        );
+        $this->Common_model->SaveData('student_fee_details', $insertData);
+			
 
 			$data = array(
 				'studentfeeD'   => $getData,
@@ -196,7 +200,7 @@ class Welcome extends CI_Controller {
 			$this->load->view('footer');
 		} 
 		else {
-			redirect(site_url('login'));
+			redirect(site_url('dashboard'));
 		}
 	}
 
@@ -237,6 +241,9 @@ class Welcome extends CI_Controller {
 			redirect('dashboard');
 		}
 	}
+
+
+	
 
 	
 	public function resstatus()
@@ -286,7 +293,7 @@ class Welcome extends CI_Controller {
 			$this->load->view('footer');	
 		}
 		else {
-			redirect(site_url('login'));
+			redirect(site_url('dashboard'));
 		}	
 	}
 
