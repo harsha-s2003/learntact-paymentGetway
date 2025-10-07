@@ -8,13 +8,7 @@ class Welcome extends CI_Controller {
         
           $transactionId =  sprintf("%06d", mt_rand(1, 999999));
           $payUrl = "https://caller.atomtech.in/ots/aipay/auth";
-         $amount = $this->input->post('amount');
-$amount = $_POST['amount'] ?? null;
-
-if (empty($amount) || $amount >= 100) {
-    $amount = 100; // default amount
-}
-
+         $amount = $this->input->post('amount') ?? 50.00;
 
  
          
@@ -25,7 +19,7 @@ if (empty($amount) || $amount >= 100) {
                     "Amount" => $amount,
                     "TransactionCurrency" => "INR",
                     "TransactionAmount" => $amount,
-                    "ReturnUrl" => base_url("paymentdemo/confirm"),
+                    "ReturnUrl" => base_url("welcome/response"),
                     "ClientCode" => "007",
                     "TransactionId" => $transactionId,
                     "CustomerEmailId" => "sagar.gopale@atomtech.in",

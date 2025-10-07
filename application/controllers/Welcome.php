@@ -107,12 +107,12 @@ class Welcome extends CI_Controller {
 
 			if(empty($existing)) {
 				$data_Arr = array(
-					'student_id'     => $_SESSION['adccepay']->id,
-					'program'        => $_SESSION['adccepay']->program ?? '',
+					'student_id'     => $studentData->id,
+					'program'        => $studentData->program ?? '',
 					'fee_amt'        => $amount,
-					'mobile'         => $_SESSION['adccepay']->mobile,
+					'mobile'         => $studentData->mobile,
 					'transation_id'  => $transactionId,
-					'payment_status' => ($statusCode == 'OTS0000') ? 'Success' : 'Failed',
+					'payment_status' => 'Pending',
 					'created'        => date("Y-m-d H:i:s"),
 					'modified'       => date("Y-m-d H:i:s")
 				);
@@ -148,102 +148,166 @@ class Welcome extends CI_Controller {
 			
 
 			$transactionId = sprintf("%06d", mt_rand(1, 999999));
-			$payUrl = "https://caller.atomtech.in/ots/aipay/auth";
-            $amount = $this->input->post('amount');
-			$amount = $_POST['amount'] ?? null;
+		$payUrl = "https://caller.atomtech.in/ots/aipay/auth";
 
-			if (empty($amount) || $amount >= 100) {
-				$amount = 100; // default amount
-			}
+		 $amount = $this->input->post('amount') ?? 50.00;
 
-			$this->load->library("AtompayRequest", array(
-				"Login" => "446442",
-				"Password" => "Test@123",
-				"ProductId" => "NSE",
-				"Amount" => $amount,
-				"TransactionCurrency" => "INR",
-				"TransactionAmount" => $amount,
-				"ReturnUrl" => base_url("welcome/response"),
-				"ClientCode" => "007",
-				"TransactionId" => $transactionId,
-				"CustomerEmailId" => $getData->email ?? "test@example.com",
-				"CustomerMobile" => $getData->mobile,
-				"CustomerAccount" => "639827",
-				"url" => $payUrl,
-				"RequestEncypritonKey" => "A4476C2062FFA58980DC8F79EB6A799E",
-				"ResponseDecryptionKey" => "75AEF0FA1B94B3C10D4F5B268F757F11",
-			));
-
-			$atomTokenId = $this->atompayrequest->payNow();
-            $insertData = array(
-            'student_id'     => $getData->id,
-            'program'        => $getData->program,
-            'fee_amt'        => $amount,
-            'mobile'         => $getData->mobile,
-            'transation_id'  => $transactionId, // spelling same rakho
-            'payment_status' => 'Pending',
-            'created'        => date("Y-m-d H:i:s"),
-            'modified'       => date("Y-m-d H:i:s")
-        );
-        $this->Common_model->SaveData('student_fee_details', $insertData);
-			
-
-			$data = array(
-				'studentfeeD'   => $getData,
-				'atomTokenId'   => $atomTokenId,
-				'transactionId' => $transactionId,
-				'amount'        => $amount
-			);
-
-			$this->load->view('header');
-			$this->load->view('dashboard', $data);
-			$this->load->view('footer');
-		} 
-		else {
-			redirect(site_url('dashboard'));
-		}
-	}
-
-	public function response()
-	{
-		$this->load->library("AtompayResponse", array(
-			"data" => $_POST['encData'],
-			"merchId" => $_POST['merchId'],
+		$this->load->library("AtompayRequest", array(
+			"Login" => "446442",
+			"Password" => "Test@123",
+			"ProductId" => "NSE",
+			"Amount" => $amount,
+			"TransactionCurrency" => "INR",
+			"TransactionAmount" => $amount,
+			"ReturnUrl" => base_url("welcome/response"),
+			"ClientCode" => "007",
+			"TransactionId" => $transactionId,
+			"CustomerEmailId" => "sagar.gopale@atomtech.in",
+			"CustomerMobile" => "8976286911",
+			"CustomerAccount" => "639827",
+			"url" => $payUrl,
+			"RequestEncypritonKey" => "A4476C2062FFA58980DC8F79EB6A799E",
 			"ResponseDecryptionKey" => "75AEF0FA1B94B3C10D4F5B268F757F11",
 		));
 
-		$responseArr = $this->atompayresponse->decryptResponseIntoArray();
+		$atomTokenId = $this->atompayrequest->payNow();
 
-		$statusCode     = $responseArr['responseDetails']['statusCode'];
-		$transactionId  = $responseArr['merchDetails']['merchTxnId'];   // Atom ka txn id
-		$transactionDate= $responseArr['merchDetails']['merchTxnDate'];
-		$bankTxnId      = $responseArr['payModeSpecificData']['bankDetails']['bankTxnId'];
-
-		// DB save/update
-		$data_Arr = array(
-			'bank_trans_id'  => $bankTxnId,
-			'payment_status' => ($statusCode == 'OTS0000') ? 'Success' : 'Failed',
-			'payment_date'   => $transactionDate,
-			'modified'       => date("Y-m-d H:i:s"),
+		$data = array(
+			'studentfeeD'   => $getData,
+			'atomTokenId'   => $atomTokenId,
+			'transactionId' => $transactionId,
+			'amount'        => $amount
 		);
 
-	
-		$this->Common_model->SaveData(
-			'student_fee_details',
-			$data_Arr,
-			"transation_id='".$transactionId."'"   // fix spelling
-		);
-
-		if ($statusCode == 'OTS0000') {
-			redirect('payment-history');
-		} else {
-			$this->session->set_flashdata('error', 'Payment failed, please try again.');
-			redirect('dashboard');
-		}
+		$this->load->view('header');
+		$this->load->view('dashboard', $data);
+		$this->load->view('footer');
+			}  
+		// else {
+		// 	redirect(site_url('dashboard'));
+		// }
 	}
 
+	// public function response()
+	// {
+	// 	$this->load->library("AtompayResponse", array(
+	// 		"data" => $_POST['encData'],
+	// 		"merchId" => $_POST['merchId'],
+	// 		"ResponseDecryptionKey" => "75AEF0FA1B94B3C10D4F5B268F757F11",
+	// 	));
+
+	// 	$responseArr = $this->atompayresponse->decryptResponseIntoArray();
+
+	// 	$statusCode     = $responseArr['responseDetails']['statusCode'];
+	// 	$transactionId  = $responseArr['merchDetails']['merchTxnId'];   // Atom ka txn id
+	// 	$transactionDate= $responseArr['merchDetails']['merchTxnDate'];
+	// 	$bankTxnId      = $responseArr['payModeSpecificData']['bankDetails']['bankTxnId'];
+
+	// 	// DB save/update
+	// 	$data_Arr = array(
+	// 		'bank_trans_id'  => $bankTxnId,
+	// 		'payment_status' => ($statusCode == 'OTS0000') ? 'Success' : 'Failed',
+	// 		'payment_date'   => $transactionDate,
+	// 		'modified'       => date("Y-m-d H:i:s"),
+	// 	);
 
 	
+	// 	$this->Common_model->SaveData(
+	// 		'student_fee_details',
+	// 		$data_Arr,
+	// 		"transation_id='".$transactionId."'"   // fix spelling
+	// 	);
+
+	// 	if ($statusCode == 'OTS0000') {
+	// 		redirect('payment-history');
+	// 	} else {
+	// 		$this->session->set_flashdata('error', 'Payment failed, please try again.');
+	// 		redirect('dashboard');
+	// 	}
+	// }
+
+		public function store_amount()
+	{
+		$amount = $this->input->post('amount');
+		if ($amount && $amount > 0) {
+			$this->session->set_userdata('temp_amount', $amount);
+		}
+		echo "OK";
+	}
+// sdfjhgh ////
+	public function response()
+{
+    // Step 1: Load AtompayResponse Library
+    $this->load->library("AtompayResponse", array(
+        "data" => $_POST['encData'],
+        "merchId" => $_POST['merchId'],
+        "ResponseDecryptionKey" => "75AEF0FA1B94B3C10D4F5B268F757F11",
+    ));
+
+    // Step 2: Decrypt the payment response
+    $responseArr = $this->atompayresponse->decryptResponseIntoArray();
+
+    // Step 3: Extract key details safely
+    $statusCode      = $responseArr['responseDetails']['statusCode'] ?? '';
+    $transactionId   = $responseArr['merchDetails']['merchTxnId'] ?? '';
+    $transactionDate = $responseArr['merchDetails']['merchTxnDate'] ?? '';
+    $bankTxnId       = $responseArr['payModeSpecificData']['bankDetails']['bankTxnId'] ?? '';
+
+    // ✅ Step 4: Get amount — from response OR from session (fallback)
+    $amount = $responseArr['merchDetails']['txnAmount']
+        ?? $this->session->userdata('temp_amount')
+        ?? 0;
+
+    // Step 5: Get logged-in user details from session
+    if (!empty($_SESSION['adccepay'])) {
+        $studentData = $this->Common_model->GetData(
+            'student_reg',
+            '',
+            "id='" . $_SESSION['adccepay']->id . "'",
+            '',
+            '',
+            '',
+            '1'
+        );
+    } else {
+        // If session expired, redirect to login
+        $this->session->set_flashdata('error', 'Session expired. Please login again.');
+        redirect('login');
+        return;
+    }
+
+    // Step 6: Handle success/failure based on response status
+    if ($statusCode == 'OTS0000') {
+        // Prepare data for DB
+        $insertData = array(
+            'student_id'     => $studentData->id,
+            'program'        => $studentData->program,
+            'fee_amt'        => $amount,
+            'mobile'         => $studentData->mobile,
+            'transation_id'  => $transactionId,
+            'payment_status' => 'Success',
+            'created'        => date("Y-m-d H:i:s"),
+            'modified'       => date("Y-m-d H:i:s"),
+            'bank_trans_id'  => $bankTxnId,
+            'payment_date'   => $transactionDate,
+        );
+
+        // Save in DB
+        $this->Common_model->SaveData('student_fee_details', $insertData);
+
+        // Clear temporary session amount
+        $this->session->unset_userdata('temp_amount');
+
+        // Redirect with success message
+        $this->session->set_flashdata('success', 'Payment successful!');
+        redirect('payment-history');
+
+    } else {
+        // Payment failed
+        $this->session->set_flashdata('error', 'Payment failed, please try again.');
+        redirect('dashboard');
+    }
+}
 
 	
 	public function resstatus()
@@ -281,20 +345,36 @@ class Welcome extends CI_Controller {
 		
 	}
 
+	// public function payment_history()
+	// {
+
+	// 	if(!empty($_SESSION['adccepay']))
+	// 	{
+	// 		$getData = $this->Common_model->GetData('student_fee_details','',"student_id='".$_SESSION['adccepay']->id."'",'','','','');
+	// 		$data['studentfeeD'] = $getData;
+	// 		$this->load->view('header');
+	// 		$this->load->view('payment-history',$data);
+	// 		$this->load->view('footer');	
+	// 	}
+	// 	else {
+	// 		redirect(site_url('dashboard'));
+	// 	}	
+	// }
+
 	public function payment_history()
 	{
-
-		if(!empty($_SESSION['adccepay']))
-		{
-			$getData = $this->Common_model->GetData('student_fee_details','',"student_id='".$_SESSION['adccepay']->id."'",'','','','');
-			$data['studentfeeD'] = $getData;
-			$this->load->view('header');
-			$this->load->view('payment-history',$data);
-			$this->load->view('footer');	
+		if(!empty($_SESSION['adccepay'])) {
+			$studentId = $_SESSION['adccepay']->id;
+		} else {
+			// guest user ke liye dummy id
+			$studentId = 1;
 		}
-		else {
-			redirect(site_url('dashboard'));
-		}	
+
+		$getData = $this->Common_model->GetData('student_fee_details','',"student_id='".$studentId."'",'','','','');
+		$data['studentfeeD'] = $getData;
+		$this->load->view('header');
+		$this->load->view('payment-history',$data);
+		$this->load->view('footer');  
 	}
 
 	public function payment_invoice($sid)

@@ -28,7 +28,7 @@ date_default_timezone_set('Asia/Kolkata');
 /*$config['base_url'] = 'https://adccacademy.com/otherfee_module/';*/
 // $config['base_url'] = 'https://learntact.in';
 
-$config['base_url'] = 'http://localhost/learntact/';
+$config['base_url'] = 'http://localhost/learntact-paymentGetway/';
 
 /*
 |--------------------------------------------------------------------------

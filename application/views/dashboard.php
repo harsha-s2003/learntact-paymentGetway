@@ -59,13 +59,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <input type="" name="atomTokenId"
                                             value="<?= $atomTokenId ? $atomTokenId : ''; ?>">
 
-                                        <!-- Amount input box -->
-                                        <p>Pay Rs.
-                                            <input type="number" name="amount" id="amount" class="form-control"
-                                                placeholder="Enter Amount" required>
-                                        </p>
+                                        <form method="post" action="<?= base_url('welcome/dashboard') ?>">
+                                            <div class="form-group">
+                                                <label>Enter Amount</label>
+                                                <input type="number" step="0.01" name="amount" class="form-control"
+                                                    value="<?= $amount ?>" required>
+                                            </div>
 
-                                        <a class="btn btn-success" href="javascript:openPay()" role="button">Pay Now</a>
+                                            <!-- Single button -->
+                                            <button type="button" class="btn btn-primary mt-3" onclick="openPay()">
+                                                Pay Now
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             </table>
@@ -85,7 +90,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <!-- Atom payment cdn -->
     <script src="https://pgtest.atomtech.in/staticdata/ots/js/atomcheckout.js"></script>
 
-    <script>
+    <!-- <script>
     function openPay() {
         let amount = document.getElementById("amount").value;
 
@@ -103,6 +108,40 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             "returnUrl": "<?= site_url('welcome/response'); ?>"
         }
         let atom = new AtomPaynetz(options, 'uat');
+    }
+    </script> -->
+
+    <script>
+    function openPay() {
+        let amount = document.querySelector('input[name="amount"]').value;
+
+        if (!amount || amount <= 0) {
+            alert("Please enter a valid amount");
+            return;
+        }
+
+        // Store amount temporarily using AJAX to server session
+        $.ajax({
+            url: "<?= site_url('welcome/store_amount') ?>",
+            method: "POST",
+            data: {
+                amount: amount
+            },
+            success: function(response) {
+                // Now call AtomPay
+                const options = {
+                    "atomTokenId": "<?= $atomTokenId ?>",
+                    "merchId": "446442",
+                    "custEmail": "sagar.gopale@atomtech.in",
+                    "custMobile": "8976286911",
+                    "returnUrl": "<?= site_url('welcome/response'); ?>",
+                    // "returnUrl": "https://www.learntact.in/welcome/response",
+                    "amount": amount
+                };
+                let atom = new AtomPaynetz(options, 'uat');
+                atom.pay();
+            }
+        });
     }
     </script>
 
