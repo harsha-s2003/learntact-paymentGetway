@@ -39,16 +39,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <td>Class</td>
                                     <td>
                                         <?php
-                  if($studentfeeD->class==1) {
-                    echo $studentfeeD->class.'st';
-                  } elseif ($studentfeeD->class==2) {
-                    echo $studentfeeD->class.'nd';
-                  } elseif ($studentfeeD->class==3) {
-                    echo $studentfeeD->class.'rd';
-                  } else {
-                    echo $studentfeeD->class.'th';
-                  }
-                  ?>
+                                        if($studentfeeD->class==1) {
+                                            echo $studentfeeD->class.'st';
+                                        } elseif ($studentfeeD->class==2) {
+                                            echo $studentfeeD->class.'nd';
+                                        } elseif ($studentfeeD->class==3) {
+                                            echo $studentfeeD->class.'rd';
+                                        } else {
+                                            echo $studentfeeD->class.'th';
+                                        }
+                                        ?>
                                     </td>
                                 </tr>
                                 <tr>
@@ -62,8 +62,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <form method="post" action="<?= base_url('welcome/dashboard') ?>">
                                             <div class="form-group">
                                                 <label>Enter Amount</label>
+                                                <!-- <input type="number" step="0.01" name="amount" class="form-control"
+                                                    value="<= $amount ?>" required> -->
+                                                <?php 
+                                                    $programs = $studentfeeD->program; 
+                                                    $programArray = explode(',', $programs); 
+
+                                                    $total_fee = 0; 
+
+                                                    foreach ($programArray as $prog) {
+                                                        $prog = trim($prog); 
+                                                        $feeRow = $this->db->where('program_name', $prog)->get('student_program')->row();
+                                                        if ($feeRow) {
+                                                            $total_fee += $feeRow->program_fee; 
+                                                        }
+                                                    }
+
+
+                                                    $program_fee = $total_fee > 0 ? $total_fee : 0;
+                                                    ?>
+
                                                 <input type="number" step="0.01" name="amount" class="form-control"
-                                                    value="<?= $amount ?>" required>
+                                                    value="<?= $program_fee ?>" required>
+
+
+
                                             </div>
 
                                             <!-- Single button -->

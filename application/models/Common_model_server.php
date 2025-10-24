@@ -55,7 +55,7 @@ class Common_model_Server extends CI_Model
             // ✅ Safe SELECT with GROUP BY
             $this->db->select("ANY_VALUE(id) as id, school_name, ANY_VALUE(status) as status, ANY_VALUE(created) as created, ANY_VALUE(modified) as modified");
             $this->db->group_by($group);
-        } else {
+        } else { 
             $this->db->select("*");
         }
         return $this->db->get($table)->result();

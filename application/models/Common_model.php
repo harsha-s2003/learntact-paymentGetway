@@ -55,7 +55,7 @@ class Common_model extends CI_Model
         $this->db->limit($limit);
         if($group != '')
         $this->db->group_by($group);
-        return $this->db->get($table)->result();
+        return $this->db->get($table)->result(); 
 	}
 	
      function get_multiple_record($table, $con='',$order='',$limit='',$group='')

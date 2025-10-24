@@ -234,80 +234,80 @@ class Welcome extends CI_Controller {
 		}
 		echo "OK";
 	}
-// sdfjhgh ////
+
 	public function response()
-{
-    // Step 1: Load AtompayResponse Library
-    $this->load->library("AtompayResponse", array(
-        "data" => $_POST['encData'],
-        "merchId" => $_POST['merchId'],
-        "ResponseDecryptionKey" => "75AEF0FA1B94B3C10D4F5B268F757F11",
-    ));
+	{
+		// Step 1: Load AtompayResponse Library
+		$this->load->library("AtompayResponse", array(
+			"data" => $_POST['encData'],
+			"merchId" => $_POST['merchId'],
+			"ResponseDecryptionKey" => "75AEF0FA1B94B3C10D4F5B268F757F11",
+		));
 
-    // Step 2: Decrypt the payment response
-    $responseArr = $this->atompayresponse->decryptResponseIntoArray();
+		// Step 2: Decrypt the payment response
+		$responseArr = $this->atompayresponse->decryptResponseIntoArray();
 
-    // Step 3: Extract key details safely
-    $statusCode      = $responseArr['responseDetails']['statusCode'] ?? '';
-    $transactionId   = $responseArr['merchDetails']['merchTxnId'] ?? '';
-    $transactionDate = $responseArr['merchDetails']['merchTxnDate'] ?? '';
-    $bankTxnId       = $responseArr['payModeSpecificData']['bankDetails']['bankTxnId'] ?? '';
+		// Step 3: Extract key details safely
+		$statusCode      = $responseArr['responseDetails']['statusCode'] ?? '';
+		$transactionId   = $responseArr['merchDetails']['merchTxnId'] ?? '';
+		$transactionDate = $responseArr['merchDetails']['merchTxnDate'] ?? '';
+		$bankTxnId       = $responseArr['payModeSpecificData']['bankDetails']['bankTxnId'] ?? '';
 
-    // ✅ Step 4: Get amount — from response OR from session (fallback)
-    $amount = $responseArr['merchDetails']['txnAmount']
-        ?? $this->session->userdata('temp_amount')
-        ?? 0;
+		// ✅ Step 4: Get amount — from response OR from session (fallback)
+		$amount = $responseArr['merchDetails']['txnAmount']
+			?? $this->session->userdata('temp_amount')
+			?? 0;
 
-    // Step 5: Get logged-in user details from session
-    if (!empty($_SESSION['adccepay'])) {
-        $studentData = $this->Common_model->GetData(
-            'student_reg',
-            '',
-            "id='" . $_SESSION['adccepay']->id . "'",
-            '',
-            '',
-            '',
-            '1'
-        );
-    } else {
-        // If session expired, redirect to login
-        $this->session->set_flashdata('error', 'Session expired. Please login again.');
-        redirect('login');
-        return;
-    }
+		// Step 5: Get logged-in user details from session
+		if (!empty($_SESSION['adccepay'])) {
+			$studentData = $this->Common_model->GetData(
+				'student_reg',
+				'',
+				"id='" . $_SESSION['adccepay']->id . "'",
+				'',
+				'',
+				'',
+				'1'
+			);
+		} else {
+			// If session expired, redirect to login
+			$this->session->set_flashdata('error', 'Session expired. Please login again.');
+			redirect('login');
+			return;
+		}
 
-    // Step 6: Handle success/failure based on response status
-    if ($statusCode == 'OTS0000') {
-        // Prepare data for DB
-        $insertData = array(
-            'student_id'     => $studentData->id,
-            'program'        => $studentData->program,
-            'fee_amt'        => $amount,
-            'mobile'         => $studentData->mobile,
-            'transation_id'  => $transactionId,
-            'payment_status' => 'Success',
-            'created'        => date("Y-m-d H:i:s"),
-            'modified'       => date("Y-m-d H:i:s"),
-            'bank_trans_id'  => $bankTxnId,
-            'payment_date'   => $transactionDate,
-        );
+		// Step 6: Handle success/failure based on response status
+		if ($statusCode == 'OTS0000') {
+			// Prepare data for DB
+			$insertData = array(
+				'student_id'     => $studentData->id,
+				'program'        => $studentData->program,
+				'fee_amt'        => $amount,
+				'mobile'         => $studentData->mobile,
+				'transation_id'  => $transactionId,
+				'payment_status' => 'Success',
+				'created'        => date("Y-m-d H:i:s"),
+				'modified'       => date("Y-m-d H:i:s"),
+				'bank_trans_id'  => $bankTxnId,
+				'payment_date'   => $transactionDate,
+			);
 
-        // Save in DB
-        $this->Common_model->SaveData('student_fee_details', $insertData);
+			// Save in DB
+			$this->Common_model->SaveData('student_fee_details', $insertData);
 
-        // Clear temporary session amount
-        $this->session->unset_userdata('temp_amount');
+			// Clear temporary session amount
+			$this->session->unset_userdata('temp_amount');
 
-        // Redirect with success message
-        $this->session->set_flashdata('success', 'Payment successful!');
-        redirect('payment-history');
+			// Redirect with success message
+			$this->session->set_flashdata('success', 'Payment successful!');
+			redirect('payment-history');
 
-    } else {
-        // Payment failed
-        $this->session->set_flashdata('error', 'Payment failed, please try again.');
-        redirect('dashboard');
-    }
-}
+		} else {
+			// Payment failed
+			$this->session->set_flashdata('error', 'Payment failed, please try again.');
+			redirect('dashboard');
+		}
+	}
 
 	
 	public function resstatus()
