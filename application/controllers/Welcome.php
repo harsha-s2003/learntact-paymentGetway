@@ -47,25 +47,26 @@ class Welcome extends CI_Controller {
 		$this->load->view('footer');
 	}
 
-	public function student_login()
-	{
-		//print_r($_POST);exit;
-		$cond = "mobile='".$_POST['mobile']."'";
-		$getData = $this->Common_model->GetData('student_reg','',$cond,'','','','1');
-		if(!empty($getData))
-		{
-			$otp = rand(100000,999999); 
-			$adata = array("otp" => $otp);
-			$this->Common_model->SaveData('student_reg',$adata,"mobile='".$_POST['mobile']."'");
-			redirect(site_url('otp-verify'));		
-		}
-		else {
-			echo "<script>alert('Your mobile number does not exist. Please try again.');</script>";
-			redirect('login');
-		}
+	// old code otp login code 
+	// public function student_login()
+	// {
+	// 	//print_r($_POST);exit;
+	// 	$cond = "mobile='".$_POST['mobile']."'";
+	// 	$getData = $this->Common_model->GetData('student_reg','',$cond,'','','','1');
+	// 	if(!empty($getData))
+	// 	{
+	// 		$otp = rand(100000,999999); 
+	// 		$adata = array("otp" => $otp);
+	// 		$this->Common_model->SaveData('student_reg',$adata,"mobile='".$_POST['mobile']."'");
+	// 		redirect(site_url('otp-verify'));		
+	// 	}
+	// 	else {
+	// 		echo "<script>alert('Your mobile number does not exist. Please try again.');</script>";
+	// 		redirect('login');
+	// 	}
 		
 		
-	}
+	// }
 	public function otp_verify()
 	{
 		$this->load->view('header');
@@ -86,6 +87,31 @@ class Welcome extends CI_Controller {
 			redirect(site_url('login'));
 		}
 	}
+
+
+	// new code password login code 
+	public function student_login()
+{
+    $mobile = $this->input->post('mobile');
+    $password = $this->input->post('password');
+
+    // find user
+    $user = $this->Common_model->GetData('student_reg', '', "mobile='" . $mobile . "'", '', '', '', '1');
+
+    if (!empty($user)) {
+        if (password_verify($password, $user->password)) {
+            $_SESSION['adccepay'] = $user; // save login session
+            redirect(site_url('dashboard'));
+        } else {
+            echo "<script>alert('Incorrect password. Please try again.');</script>";
+            redirect(site_url('login'));
+        }
+    } else {
+        echo "<script>alert('Mobile number not found. Please register first.');</script>";
+        redirect(site_url('register'));
+    }
+}
+
 	
 	public function order_pay()
 	{
@@ -188,43 +214,6 @@ class Welcome extends CI_Controller {
 		// }
 	}
 
-	// public function response()
-	// {
-	// 	$this->load->library("AtompayResponse", array(
-	// 		"data" => $_POST['encData'],
-	// 		"merchId" => $_POST['merchId'],
-	// 		"ResponseDecryptionKey" => "75AEF0FA1B94B3C10D4F5B268F757F11",
-	// 	));
-
-	// 	$responseArr = $this->atompayresponse->decryptResponseIntoArray();
-
-	// 	$statusCode     = $responseArr['responseDetails']['statusCode'];
-	// 	$transactionId  = $responseArr['merchDetails']['merchTxnId'];   // Atom ka txn id
-	// 	$transactionDate= $responseArr['merchDetails']['merchTxnDate'];
-	// 	$bankTxnId      = $responseArr['payModeSpecificData']['bankDetails']['bankTxnId'];
-
-	// 	// DB save/update
-	// 	$data_Arr = array(
-	// 		'bank_trans_id'  => $bankTxnId,
-	// 		'payment_status' => ($statusCode == 'OTS0000') ? 'Success' : 'Failed',
-	// 		'payment_date'   => $transactionDate,
-	// 		'modified'       => date("Y-m-d H:i:s"),
-	// 	);
-
-	
-	// 	$this->Common_model->SaveData(
-	// 		'student_fee_details',
-	// 		$data_Arr,
-	// 		"transation_id='".$transactionId."'"   // fix spelling
-	// 	);
-
-	// 	if ($statusCode == 'OTS0000') {
-	// 		redirect('payment-history');
-	// 	} else {
-	// 		$this->session->set_flashdata('error', 'Payment failed, please try again.');
-	// 		redirect('dashboard');
-	// 	}
-	// }
 
 		public function store_amount()
 	{
@@ -321,29 +310,68 @@ class Welcome extends CI_Controller {
 		redirect(site_url('login'));
 	}
 	
-	public function save_registration_data()
-	{
-		$pp = implode(",",$_POST['program_name']);
-		$name = trim($_POST['name']);
-		$mobile = trim($_POST['mobile']);
-		$school = trim($_POST['school']);
-		$program_name = $_POST['program_name'];
-		$class = trim($_POST['class']);
-		$academic_sess = trim($_POST['academic_sess']);
-		$cond = "mobile='".$_POST['mobile']."'";
-		$getData = $this->Common_model->GetData('student_reg','',$cond,'','','','1');
-		if(empty($getData)) { 
-		$otp = rand(100000,999999); 
+	// old code otp code 
+	// public function save_registration_data()
+	// {
+	// 	$pp = implode(",",$_POST['program_name']);
+	// 	$name = trim($_POST['name']);
+	// 	$mobile = trim($_POST['mobile']);
+	// 	$school = trim($_POST['school']);
+	// 	$program_name = $_POST['program_name'];
+	// 	$class = trim($_POST['class']);
+	// 	$academic_sess = trim($_POST['academic_sess']);
+	// 	$cond = "mobile='".$_POST['mobile']."'";
+	// 	$getData = $this->Common_model->GetData('student_reg','',$cond,'','','','1');
+	// 	if(empty($getData)) { 
+	// 	$otp = rand(100000,999999); 
 			
-	        $arrayR = array('name' => $name,'mobile'=>$mobile,'school'=>$school,'program'=>$pp,'class'=>$class,'otp'=>$otp,'session'=>$academic_sess);
-		    $this->Common_model->SaveData('student_reg',$arrayR);
-	    	redirect(site_url('otp-verify'));
-	    } else {
-	    	echo "<script>alert('Your Mobile No Already exist!');</script>";
-	    	redirect('login');
-	    }
+	//         $arrayR = array('name' => $name,'mobile'=>$mobile,'school'=>$school,'program'=>$pp,'class'=>$class,'otp'=>$otp,'session'=>$academic_sess);
+	// 	    $this->Common_model->SaveData('student_reg',$arrayR);
+	//     	redirect(site_url('otp-verify'));
+	//     } else {
+	//     	echo "<script>alert('Your Mobile No Already exist!');</script>";
+	//     	redirect('login');
+	//     }
 		
-	}
+	// }
+
+	// new password code 
+	public function save_registration_data()
+{
+    $pp = implode(",", $_POST['program_name']);
+    $name = trim($_POST['name']);
+    $mobile = trim($_POST['mobile']);
+    $school = trim($_POST['school']);
+    $program_name = $_POST['program_name'];
+    $class = trim($_POST['class']);
+    $academic_sess = trim($_POST['academic_sess']);
+    $password = password_hash($this->input->post('password'), PASSWORD_DEFAULT); // ✅ hash password
+
+    // check if mobile already registered
+    $cond = "mobile='" . $_POST['mobile'] . "'";
+    $getData = $this->Common_model->GetData('student_reg', '', $cond, '', '', '', '1');
+
+    if (empty($getData)) {
+        $arrayR = array(
+            'name' => $name,
+            'mobile' => $mobile,
+            'school' => $school,
+            'program' => $pp,
+            'class' => $class,
+            'session' => $academic_sess,
+            'password' => $password, // ✅ save hashed password
+            'created' => date('Y-m-d H:i:s')
+        );
+
+        $this->Common_model->SaveData('student_reg', $arrayR);
+        echo "<script>alert('Registration successful! Please login.');</script>";
+        redirect(site_url('login'));
+    } else {
+        echo "<script>alert('Your Mobile Number already exists!');</script>";
+        redirect('login');
+    }
+}
+
 
 	// public function payment_history()
 	// {

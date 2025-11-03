@@ -430,14 +430,17 @@
                     <h4 class="mb-3">Useful Links</h4>
                     <div class="row justify-content-center">
                         <div class="col-md-3 col-6">
-                            <a href="term-condition" class="text-white text-decoration-none">Terms & Conditions</a>
+                            <a href="<?= site_url('term-condition');?>" class="text-white text-decoration-none">Terms &
+                                Conditions</a>
                         </div>
                         <div class="col-md-3 col-6">
-                            <a href="privacy-policy" class="text-white text-decoration-none">Privacy Policy</a>
+                            <a href="<?= site_url('privacy-policy');?>" class="text-white text-decoration-none">Privacy
+                                Policy</a>
                         </div>
                         <div class="col-md-3 col-6">
-                            <a href="cancellation-refund-policy" class="text-white text-decoration-none">Cancellation &
-                                Refund Policy</a>
+                            <a href="<?= site_url('cancalation-refund-policy');?>"
+                                class="text-white text-decoration-none">Cancellation
+                                & Refund Policy</a>
                         </div>
                     </div>
                 </div>

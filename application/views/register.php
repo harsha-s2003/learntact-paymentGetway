@@ -71,6 +71,10 @@
                         </select>
 
                     </div>
+                    <div class="mb-3">
+                        <input type="password" class="form-control" id="password" placeholder="Create Password"
+                            name="password" required>
+                    </div>
 
 
 
